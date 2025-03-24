@@ -1,11 +1,12 @@
-FROM n8nio/n8n
+FROM n8nio/n8n:latest
 
-USER root
+# Install TelePilot
+RUN mkdir -p /home/node/.n8n/nodes && \
+    cd /home/node/.n8n/nodes && \
+    npm install @telepilotco/n8n-nodes-telepilot
 
-RUN mkdir -p /home/node/.n8n/custom && \
-    cd /home/node/.n8n/custom && \
-    npm install @telepilotco/n8n-nodes-telepilot n8n-nodes-bullmq
+# Ensure TelePilot DB is in the persistent volume
+ENV TELEPILOT_DB_PATH=/persistent-data/telepilot_db
 
-RUN chown -R node:node /home/node/.n8n
-
-USER node
+# Start n8n
+ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
